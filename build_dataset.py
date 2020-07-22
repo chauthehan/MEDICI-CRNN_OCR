@@ -10,6 +10,7 @@ import imutils
 import random
 from tqdm import tqdm
 import gc 
+from config import config
 
 def rotate_bound(image, angle):
     # grab the dimensions of the image and then determine the
@@ -54,16 +55,17 @@ imagePaths = list(paths.list_images(args["dataset"]))
 
 random.shuffle(imagePaths)
 
-width = 300
-height = 32
-k1 = 300/32
+#value in config is value after rotate, so width is height, height is width
+width = config.HEIGHT
+height = config.WIDTH
+k1 = width/height
 
 (trainImages, trainLabels) = ([], [])
 (valImages, valLabels) = ([], [])
 (testImages, testLabels) = ([], [])
 
 
-writer = HDF5DatasetWriter((120000, 300, 32), 'hdf5/train.hdf5')
+writer = HDF5DatasetWriter((120000, config.HEIGHT, config.WIDTH), 'hdf5/train.hdf5', max_label_length=config.MAX_LENGTH)
 for j, imagePath in tqdm(enumerate(imagePaths)):
 	imagePath2 = ''
 	for k in imagePath:
@@ -76,12 +78,14 @@ for j, imagePath in tqdm(enumerate(imagePaths)):
 	
 	k2 = image.shape[1]/image.shape[0]
 	if k2 > k1:		
-		resized = imutils.resize(image, width = 300)
-		zeros = np.zeros((32 - resized.shape[0], 300))
+		resized = imutils.resize(image, width = width)
+		zeros = np.zeros((height - resized.shape[0], width))
+		zeros = zeros + 255
 		results = np.concatenate((resized, zeros), axis=0)
 	else:
-		resized = imutils.resize(image, height = 32)
-		zeros = np.zeros((32, 300 - resized.shape[1]))
+		resized = imutils.resize(image, height = height)
+		zeros = np.zeros((height, width - resized.shape[1]))
+		zeros = zeros + 255
 		results = np.concatenate((resized, zeros), axis=1)
 
 	results = imutils.rotate_bound(results, 90)
@@ -109,8 +113,8 @@ for j, imagePath in tqdm(enumerate(imagePaths)):
 			char_ids_padded = encode_utf8_string(
                             text=line,
                             dic=dic,
-                            length=57,
-                            null_char_id=215)
+                            length=config.MAX_LENGTH,
+                            null_char_id=config.NUM_CLASSES)
 	f.close()
 
 	writer.add([results], [char_ids_padded])

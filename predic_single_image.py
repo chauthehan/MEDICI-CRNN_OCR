@@ -41,14 +41,14 @@ def fastdecode(y_pred, chars):
 
     for i,one in enumerate(y_pred[0]):
 
-        if one<215 and (i==0 or (one!=y_pred[0][i-1])):
+        if one<config.NUM_CLASSES and (i==0 or (one!=y_pred[0][i-1])):
             results_str+= chars[one]
 
     return results_str
 def decode_label(label, chars):
 	results_str = ""
 	for i, num in enumerate(label[0]):
-		if num != 215:
+		if num != config.NUM_CLASSES:
 			results_str += chars[num]
 	return results_str 
 
@@ -60,7 +60,7 @@ ap.add_argument("-i", "--images",
 args = vars(ap.parse_args())
 
 print('loading model...')
-model = CRNN.build(width=32, height=300, depth=1,
+model = CRNN.build(width=config.WIDTH, height=config.HEIGHT, depth=1,
 		classes=config.NUM_CLASSES, training=0)
 model.load_weights(args["model"])
 iap = ImageToArrayPreprocessor()
@@ -79,9 +79,9 @@ total = 0
 paths = os.listdir(args["images"])
 
 
-width = 300
-height = 32
-k1 = 300/32
+width = config.HEIGHT
+height = config.WIDTH
+k1 = width/height
 
 print('predicting...')
 for i in range(0, 50, 1):
@@ -96,12 +96,12 @@ for i in range(0, 50, 1):
 
             k2 = image.shape[1]/image.shape[0]
             if k2 > k1:		
-                resized = imutils.resize(image, width = 300)
-                zeros = np.zeros((32 - resized.shape[0], 300))
+                resized = imutils.resize(image, width = width)
+                zeros = np.zeros((height - resized.shape[0], width))
                 results = np.concatenate((resized, zeros), axis=0)
             else:
-                resized = imutils.resize(image, height = 32)
-                zeros = np.zeros((32, 300 - resized.shape[1]))
+                resized = imutils.resize(image, height = height)
+                zeros = np.zeros((height, width - resized.shape[1]))
                 results = np.concatenate((resized, zeros), axis=1)
 
             image = imutils.rotate_bound(results, 90)
@@ -111,25 +111,12 @@ for i in range(0, 50, 1):
 
 
             predict = model.predict([[image]])	
-            predict = np.argmax(predict, axis=2)		
+            predict = np.argmax(predict, axis=2)
+            print(len(predict))		
 
             res = fastdecode(predict, dic)
             string = string + res + ' '
     if mark:
         print(string)
 
-    #label = decode_label(inputs['label'][j].reshape([-1, 57]), dic)
-    #print('label= ', label)
-    # img = rotate_bound(image, -90)		
-    # cv2.imshow("q", img)
-    # cv2.waitKey(0)		
-    # cv2.destroyAllWindows()
 
-    # if res == label:
-    #     acc = acc + 1
-    # total = total+1
-
-# print('accuracy=', acc)
-# print('total=', total)
-# print('percent=', acc/total)
-# testGen.close()

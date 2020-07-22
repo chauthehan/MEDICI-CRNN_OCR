@@ -86,7 +86,7 @@ class CRNN:
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
 
-		model = Reshape((75, 1024))(model)
+		model = Reshape((100, 1024))(model)
 		model = Bidirectional(LSTM(256, return_sequences=True, kernel_initializer='he_normal'))(model)
 		model = BatchNormalization(axis=chanDim)(model)
 
@@ -96,7 +96,7 @@ class CRNN:
 		model = Dense(216, kernel_initializer='he_normal')(model)
 		y_pred = Activation("softmax")(model)
 
-		labels = Input(name='label',shape=[57], dtype='float32') 
+		labels = Input(name='label',shape=[46], dtype='float32') 
 		input_length = Input(name='input_length',shape=[1], dtype='int64')     # (None, 1)
 		label_length = Input(name='label_length',shape=[1], dtype='int64') 
 
@@ -109,6 +109,6 @@ class CRNN:
 		else:
 			return Model(inputs=[inputs], outputs=[y_pred])
 
-model = CRNN.build(width=32, height=300, depth=1,
+model = CRNN.build(width=32, height=400, depth=1,
 	classes=215)
 model.summary()

@@ -31,38 +31,24 @@ valAug = ImageDataGenerator(rescale=1/255.0)
 iap = ImageToArrayPreprocessor()
 
 trainGen = HDF5DatasetGenerator(config.TRAIN_HDF5, config.BATCH_SIZE,
-	aug=trainAug, preprocessors=[iap], binarize=False, classes=config.NUM_CLASSES)
+	aug=trainAug, preprocessors=[iap], binarize=False, classes=config.NUM_CLASSES,max_label_length=config.MAX_LENGTH)
 valGen = HDF5DatasetGenerator(config.VAL_HDF5, config.BATCH_SIZE,
-	aug=valAug, preprocessors=[iap], binarize=False, classes=config.NUM_CLASSES)
+	aug=valAug, preprocessors=[iap], binarize=False, classes=config.NUM_CLASSES,max_label_length=config.MAX_LENGTH)
 
-
-sgd = SGD(lr=0.02,
-          decay=1e-6,
-          momentum=0.9,
-          nesterov=True)
 
 adam = Adam(lr=0.001)
 if args['model'] is None:
 	print("[info] compiling model..")
-	model = CRNN.build(width=32, height=300, depth=1,
+	model = CRNN.build(width=config.WIDTH, height=config.HEIGHT, depth=1,
 		classes=config.NUM_CLASSES)
 	#print(model.summary())
 	model.compile(loss={'ctc': lambda y_true, y_pred:y_pred}, optimizer=adam)
 else:
 	print("[info] loading {}..".format(args["model"]))
-	model = CRNN.build(width=32, height=300, depth=1,
+	model = CRNN.build(width=config.WIDTH, height=config.HEIGHT, depth=1,
 		classes=config.NUM_CLASSES)
 	model.load_weights(args["model"])
-	# print("[info] old learning rate: {}".format(
-	# 	K.get_value(model.optimizer.lr)))
-	# K.set_value(model.optimizer.lr, 1e-3)
-	# print("[info] new learning rate: {}".format(
-	# 	K.get_value(model.optimizer.lr)))
-	sgd = SGD(lr=0.01,
-          decay=1e-6,
-          momentum=0.9,
-          nesterov=True)
-	adam = Adam(lr=0.001)
+
 	model.compile(loss={'ctc': lambda y_true, y_pred:y_pred}, optimizer=adam)
 
 figPath = os.path.sep.join([config.OUTPUT_PATH, "crnn.jpg"])
@@ -70,11 +56,9 @@ jsonPath = os.path.sep.join([config.OUTPUT_PATH, "crnn.json"])
 
 callbacks = [
 	EpochCheckpoint(args["checkpoints"], every=5,
-		startAt=args["start_epoch"]),
-	TrainingMonitor(figPath, jsonPath=jsonPath,
 		startAt=args["start_epoch"])]
 
-model.fit_generator(
+model.fit(
 	trainGen.generator(),
 	steps_per_epoch=trainGen.numImages//config.BATCH_SIZE,
 	validation_data=valGen.generator(),

@@ -39,14 +39,14 @@ def fastdecode(y_pred, chars):
 
     for i,one in enumerate(y_pred[0]):
 
-        if one<215 and (i==0 or (one!=y_pred[0][i-1])):
+        if one<config.NUM_CLASSES and (i==0 or (one!=y_pred[0][i-1])):
             results_str+= chars[one]
 
     return results_str
 def decode_label(label, chars):
 	results_str = ""
 	for i, num in enumerate(label[0]):
-		if num != 215:
+		if num != config.NUM_CLASSES:
 			results_str += chars[num]
 	return results_str 
 
@@ -58,7 +58,7 @@ ap.add_argument("-i", "--images",
 args = vars(ap.parse_args())
 
 print('loading model...')
-model = CRNN.build(width=32, height=300, depth=1,
+model = CRNN.build(width=config.WIDTH, height=config.HEIGHT, depth=1,
 		classes=config.NUM_CLASSES, training=0)
 model.load_weights(args["model"])
 
@@ -81,7 +81,7 @@ dict_file.close()
 acc = 0
 total = 0
 
-print('predicting...')
+print('[INFO] Predicting...')
 for (i, (inputs, _)) in enumerate(testGen.generator(passes=1)):
 
 	for j, image in enumerate(inputs['input']):
@@ -91,13 +91,10 @@ for (i, (inputs, _)) in enumerate(testGen.generator(passes=1)):
 
 		res = fastdecode(predict, dic)
 
-		label = decode_label(inputs['label'][j].reshape([-1, 57]), dic)
+		label = decode_label(inputs['label'][j].reshape([-1, config.MAX_LENGTH]), dic)
 		print('label= ', label)
 		print('result=', res)
-		# img = rotate_bound(image, -90)		
-		# cv2.imshow("q", img)
-		# cv2.waitKey(0)		
-		# cv2.destroyAllWindows()
+
 
 		if res == label:
 			acc = acc + 1

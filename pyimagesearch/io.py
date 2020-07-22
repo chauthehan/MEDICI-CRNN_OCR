@@ -4,17 +4,18 @@ import h5py
 import os
 
 class HDF5DatasetWriter:
-	def __init__(self, dims, outputPath, dataKey="images",
+	def __init__(self, dims, outputPath, dataKey="images",max_label_length=1,
 		bufSize=1000):
 		if os.path.exists(outputPath):
 			raise ValueError("The supplied 'outputPath' already "
 				"exists and cannot be overwritten. Manually delete"
 				"the file before continuing.", outputPath)
+		self.max_label_length = max_label_length
 
 		self.db = h5py.File(outputPath, "w")
 		self.data = self.db.create_dataset(dataKey, dims,
 			dtype="float")
-		self.labels = self.db.create_dataset("labels", (dims[0], 57),
+		self.labels = self.db.create_dataset("labels", (dims[0], self.max_label_length),
 			dtype="int")	
 		self.bufSize = bufSize
 		self.buffer = {"data": [], "labels": []}
@@ -45,14 +46,15 @@ class HDF5DatasetWriter:
 		self.db.close()
 class HDF5DatasetGenerator:
 	def __init__(self, dbPath, batchSize, preprocessors=None,
-		aug=None, binarize=True, classes=2):
+		aug=None, binarize=True, classes=2, max_label_length=1):
+		
 
 		self.batchSize = batchSize
 		self.preprocessors = preprocessors
 		self.aug = aug
 		self.binarize = binarize
 		self.classes = classes 
-
+		self.max_label_length = max_label_length
 		self.db = h5py.File(dbPath)
 		self.numImages = self.db["labels"].shape[0]
 	def generator(self, passes=np.inf):
@@ -80,11 +82,11 @@ class HDF5DatasetGenerator:
 					(images, labels) = next(self.aug.flow(images,
 						labels, batch_size=self.batchSize))
 
-				input_length = np.ones((self.batchSize, 1)) * 73
+				input_length = np.ones((self.batchSize, 1)) * 98 #(400/4-2 là chiều trong model) 
 				label_length = np.zeros((self.batchSize, 1))
 
 				for i in range(self.batchSize):
-					label_length[i] = 57
+					label_length[i] = self.max_label_length
 
 				inputs = {
 				'input': images,
