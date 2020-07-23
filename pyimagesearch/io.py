@@ -82,7 +82,7 @@ class HDF5DatasetGenerator:
 					(images, labels) = next(self.aug.flow(images,
 						labels, batch_size=self.batchSize))
 
-				input_length = np.ones((self.batchSize, 1)) * 98 #(400/4-2 là chiều trong model) 
+				input_length = np.ones((self.batchSize, 1)) * 98 #(400/4 -2 với 400/4 là chiều của y_pred, 2 là vì 2 output đầu của RNN thường là rác) 
 				label_length = np.zeros((self.batchSize, 1))
 
 				for i in range(self.batchSize):
