@@ -33,60 +33,39 @@ class CRNN:
 		inputs = Input(name='input',shape=inputShape, dtype='float32')
 
 		model = Conv2D(64, (3, 3), padding='same', kernel_initializer='he_normal')(inputs)
-		#model = Activation("relu")(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
 		model = (MaxPooling2D(pool_size=(2 ,2)))(model)
 
 		model = Conv2D(128, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
-
-		model = Conv2D(128, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
-		model = ELU()(model)
-		model = BatchNormalization(axis=chanDim)(model)
-		model = MaxPooling2D(pool_size=(2, 2))(model)
+		model = MaxPooling2D(pool_size=(1, 2))(model)		
 
 		model = Conv2D(256, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
 
 		model = Conv2D(256, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
-		model = ELU()(model)
-		model = BatchNormalization(axis=chanDim)(model)
-
-		model = Conv2D(256, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
 		model = MaxPooling2D(pool_size=(1, 2))(model)
 		
 		model = Conv2D(512, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
 
 		model = Conv2D(512, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
-		model = ELU()(model)
-		model = BatchNormalization(axis=chanDim)(model)
-
-		model = Conv2D(512, (3, 3), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
 		model = MaxPooling2D(pool_size=(1, 2))(model)
 
 		model = Conv2D(512, (2, 2), padding='same', kernel_initializer='he_normal')(model)
-		#model = Activation("relu")(model)
 		model = ELU()(model)
-		model = BatchNormalization(axis=chanDim)(model)
 
-		model = Reshape((100, 1024))(model)
+		model = Reshape((80, 1024))(model)
+		model = Dense(160, activation='relu', kernel_initializer='he_normal',name='dense1')(model)
+		
 		model = Bidirectional(LSTM(256, return_sequences=True, kernel_initializer='he_normal'))(model)
 		model = BatchNormalization(axis=chanDim)(model)
 
@@ -109,6 +88,6 @@ class CRNN:
 		else:
 			return Model(inputs=[inputs], outputs=[y_pred])
 
-#model = CRNN.build(width=32, height=400, depth=1,
-#	classes=215)
-#model.summary()
+model = CRNN.build(width=160, height=32, depth=1,
+	classes=215)
+model.summary()
