@@ -63,8 +63,8 @@ class CRNN:
 		model = Conv2D(512, (2, 2), padding='same', kernel_initializer='he_normal')(model)
 		model = ELU()(model)
 
-		model = Reshape((80, 1024))(model)
-		model = Dense(160, activation='relu', kernel_initializer='he_normal',name='dense1')(model)
+		model = Reshape((128, 640))(model)
+		model = Dense(256, activation='relu', kernel_initializer='he_normal',name='dense1')(model)
 		
 		model = Bidirectional(LSTM(256, return_sequences=True, kernel_initializer='he_normal'))(model)
 		model = BatchNormalization(axis=chanDim)(model)
@@ -88,6 +88,6 @@ class CRNN:
 		else:
 			return Model(inputs=[inputs], outputs=[y_pred])
 
-model = CRNN.build(width=160, height=32, depth=1,
-	classes=215)
+model = CRNN.build(width=160, height=32, depth=1,classes=215)
 model.summary()
+

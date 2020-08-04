@@ -11,29 +11,29 @@ import itertools
 import os
 import imutils
 
-def rotate_bound(image, angle):
-    # grab the dimensions of the image and then determine the
-    # center
-    (h, w) = image.shape[:2]
-    (cX, cY) = (w // 2, h // 2)
+# def rotate_bound(image, angle):
+#     # grab the dimensions of the image and then determine the
+#     # center
+#     (h, w) = image.shape[:2]
+#     (cX, cY) = (w // 2, h // 2)
  
-    # grab the rotation matrix (applying the negative of the
-    # angle to rotate clockwise), then grab the sine and cosine
-    # (i.e., the rotation components of the matrix)
-    M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
-    cos = np.abs(M[0, 0])
-    sin = np.abs(M[0, 1])
+#     # grab the rotation matrix (applying the negative of the
+#     # angle to rotate clockwise), then grab the sine and cosine
+#     # (i.e., the rotation components of the matrix)
+#     M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
+#     cos = np.abs(M[0, 0])
+#     sin = np.abs(M[0, 1])
  
-    # compute the new bounding dimensions of the image
-    nW = int((h * sin) + (w * cos))
-    nH = int((h * cos) + (w * sin))
+#     # compute the new bounding dimensions of the image
+#     nW = int((h * sin) + (w * cos))
+#     nH = int((h * cos) + (w * sin))
  
-    # adjust the rotation matrix to take into account translation
-    M[0, 2] += (nW / 2) - cX
-    M[1, 2] += (nH / 2) - cY
+#     # adjust the rotation matrix to take into account translation
+#     M[0, 2] += (nW / 2) - cX
+#     M[1, 2] += (nH / 2) - cY
  
-    # perform the actual rotation and return the image
-    return cv2.warpAffine(image, M, (nW, nH))
+#     # perform the actual rotation and return the image
+#     return cv2.warpAffine(image, M, (nW, nH))
 
 def fastdecode(y_pred, chars):
     results_str = ""
@@ -79,8 +79,8 @@ total = 0
 paths = os.listdir(args["images"])
 
 
-width = config.HEIGHT
-height = config.WIDTH
+width = config.WIDTH
+height = config.HEIGHT
 k1 = width/height
 
 print('predicting...')
@@ -95,16 +95,19 @@ for i in range(0, 50, 1):
             image = cv2.imread(name, cv2.IMREAD_GRAYSCALE)
 
             k2 = image.shape[1]/image.shape[0]
-            if k2 > k1:		
-                resized = imutils.resize(image, width = width)
-                zeros = np.zeros((height - resized.shape[0], width))
-                results = np.concatenate((resized, zeros), axis=0)
-            else:
+            if k2 < k1:		
                 resized = imutils.resize(image, height = height)
                 zeros = np.zeros((height, width - resized.shape[1]))
-                results = np.concatenate((resized, zeros), axis=1)
+                #zeros = zeros + 255
+                image = np.concatenate((resized, zeros), axis=1)
 
-            image = imutils.rotate_bound(results, 90)
+            else:
+                resized = imutils.resize(image, width = width)
+                zeros = np.zeros((height - resized.shape[0], width))
+                #zeros = zeros + 255
+                image = np.concatenate((resized, zeros), axis=0)
+
+            #image = imutils.rotate_bound(results, 90)
             image = image/255.0
             image = [image]
             image = iap.preprocess(image)  

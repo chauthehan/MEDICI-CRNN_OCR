@@ -51,8 +51,6 @@ else:
 
 	model.compile(loss={'ctc': lambda y_true, y_pred:y_pred}, optimizer=adam)
 
-figPath = os.path.sep.join([config.OUTPUT_PATH, "crnn.jpg"])
-jsonPath = os.path.sep.join([config.OUTPUT_PATH, "crnn.json"])
 
 callbacks = [
 	EpochCheckpoint(args["checkpoints"], every=5,

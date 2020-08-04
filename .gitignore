@@ -3,3 +3,4 @@ env/
 **/*.cpython-36.pyc
 test_padding.py
 hdf5/
+*.hdf5
