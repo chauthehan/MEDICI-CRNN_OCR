@@ -88,6 +88,7 @@ for j, imagePath in tqdm(enumerate(imagePaths)):
 
 	with open(label, 'r') as f:
 		for line in f:
+			print(line)
 			char_ids_padded = encode_utf8_string(
                             text=line,
                             dic=dic,

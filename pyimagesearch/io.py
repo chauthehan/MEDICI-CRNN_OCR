@@ -63,6 +63,7 @@ class HDF5DatasetGenerator:
 			for i in np.arange(0, self.numImages, self.batchSize):
 				images = self.db["images"][i:i+self.batchSize]
 				labels = self.db["labels"][i:i+self.batchSize]
+				
 
 				if self.binarize:
 					labels = np_utils.to_categorical(labels,

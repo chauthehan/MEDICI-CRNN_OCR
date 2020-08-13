@@ -115,7 +115,7 @@ for i in range(0, 50, 1):
 
             predict = model.predict([[image]])	
             predict = np.argmax(predict, axis=2)
-            print(len(predict))		
+            #print(len(predict))		
 
             res = fastdecode(predict, dic)
             string = string + res + ' '

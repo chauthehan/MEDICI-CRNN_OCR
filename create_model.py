@@ -40,7 +40,15 @@ class CRNN:
 		model = Conv2D(128, (3, 3), padding='same', kernel_initializer='he_normal')(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
+
+		model = Conv2D(128, (3, 3), padding='same', kernel_initializer='he_normal')(model)
+		model = ELU()(model)
+		model = BatchNormalization(axis=chanDim)(model)
 		model = MaxPooling2D(pool_size=(1, 2))(model)		
+
+		model = Conv2D(256, (3, 3), padding='same', kernel_initializer='he_normal')(model)
+		model = ELU()(model)
+		model = BatchNormalization(axis=chanDim)(model)
 
 		model = Conv2D(256, (3, 3), padding='same', kernel_initializer='he_normal')(model)
 		model = ELU()(model)
@@ -55,6 +63,10 @@ class CRNN:
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
 
+		model = Conv2D(512, (3, 3), padding='same', kernel_initializer='he_normal')(model)
+		model = ELU()(model)
+		model = BatchNormalization(axis=chanDim)(model)
+		
 		model = Conv2D(512, (3, 3), padding='same', kernel_initializer='he_normal')(model)
 		model = ELU()(model)
 		model = BatchNormalization(axis=chanDim)(model)
